@@ -1,0 +1,5 @@
+lab_id,lab_name,lab_type,city,zone_id,capacity_per_day,is_24x7,lab_status,created_at
+LAB001,Noida Central Lab,processing_lab,Noida,Z001,1200,True,active,2025-11-16 04:02:09
+LAB002,Delhi Reference Lab,hub_lab,Delhi,Z003,1800,True,active,2025-11-10 07:35:06
+LAB003,Gurugram Diagnostic Center,processing_lab,Gurugram,Z004,900,False,active,2025-11-06 02:32:37
+LAB004,Noida Collection Hub,collection_center,Noida,Z002,500,False,active,2025-10-20 20:36:00

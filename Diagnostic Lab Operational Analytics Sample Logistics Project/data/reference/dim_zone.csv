@@ -1,0 +1,5 @@
+zone_id,zone_name,city,region_type,traffic_level,priority_level,created_at
+Z001,Noida East,Noida,urban,high,1,2026-01-25 22:15:04
+Z002,Noida West,Noida,urban,medium,2,2025-10-15 09:08:48
+Z003,Delhi Central,Delhi,urban,high,1,2025-09-28 14:51:53
+Z004,Gurugram North,Gurugram,urban,medium,2,2026-02-14 18:10:55

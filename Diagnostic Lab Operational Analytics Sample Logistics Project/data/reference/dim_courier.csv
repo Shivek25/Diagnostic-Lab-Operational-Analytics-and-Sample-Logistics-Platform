@@ -1,0 +1,6 @@
+courier_id,courier_name,courier_type,service_area,avg_delivery_time_hours,cost_per_km,sla_hours,contact_type,active_status,created_at
+C001,NCR Express Logistics,third_party,Delhi NCR,2.5,18.0,4.0,phone,active,2026-02-13 18:30:39
+C002,HealthMove Couriers,third_party,Delhi NCR,3.0,20.0,5.0,whatsapp,active,2025-10-13 15:58:06
+C003,Metro Sample Transport,inhouse,Noida,1.8,15.0,3.0,phone,active,2026-02-02 03:57:16
+C004,QuickPath Medical Logistics,third_party,Delhi NCR,2.2,22.0,4.0,email,active,2026-02-14 14:04:05
+C005,CityCare Courier,third_party,Gurugram,2.9,19.0,5.0,phone,active,2026-03-16 00:09:52

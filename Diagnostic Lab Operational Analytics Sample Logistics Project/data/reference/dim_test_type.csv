@@ -1,0 +1,11 @@
+test_type_id,test_name,test_category,sample_type,expected_tat_hours,cost,is_critical_test,created_at
+T001,CBC,Hematology,Blood,6,350.0,False,2026-01-07 15:53:55
+T002,Blood Sugar Fasting,Biochemistry,Blood,4,180.0,False,2025-10-10 15:28:14
+T003,Liver Function Test,Biochemistry,Blood,8,750.0,False,2026-01-16 10:12:03
+T004,Kidney Function Test,Biochemistry,Blood,8,700.0,False,2025-12-14 16:36:16
+T005,Thyroid Profile,Hormone,Blood,10,900.0,False,2025-09-29 22:25:27
+T006,HbA1c,Biochemistry,Blood,12,600.0,False,2025-09-29 13:10:17
+T007,Vitamin D,Vitamin,Blood,24,1200.0,False,2025-10-11 22:57:28
+T008,Urine Routine,Pathology,Urine,6,250.0,False,2025-11-05 05:13:59
+T009,Dengue NS1,Serology,Blood,8,850.0,True,2025-11-07 22:35:05
+T010,PCR Test,Molecular,Swab,18,1500.0,True,2025-12-30 21:25:57
