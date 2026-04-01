@@ -1,0 +1,38 @@
+==================== 2026-03-22T18:14:55.044498Z | 019d16c1-d540-7d82-bb81-66788f594630 ====================
+18:14:55.044709 [info ]: Installing dbt project and profile setup
+18:14:55.074693 [info ]: Info Created .vscode/extensions.json with dbt extension recommendation
+18:14:55.075616 [info ]: Success Project created successfully!
+18:14:55.075941 [info ]: Info Project name: jaffle_shop
+18:14:55.076222 [info ]: Info Project directory: jaffle_shop
+18:14:55.076469 [info ]: Info Setting up your profile...
+18:14:55.077576 [info ]: Loading ~/.dbt/profiles.yml
+18:14:55.078565 [info ]: Info Creating new profile...
+18:14:58.797460 [info ]: No dbt_cloud.yml found - proceeding without cloud pre-population
+18:16:16.203085 [info ]: Success Profile written to C:\Users\Shive\.dbt\profiles.yml
+18:16:16.203361 [info ]: Validating profile inputs, adapters, and connection
+
+18:16:16.203607 [info ]: dbt-fusion 2.0.0-preview.154
+18:16:16.204062 [info ]: Started loading project
+18:16:16.206178 [info ]: Loading ~/.dbt/profiles.yml
+18:16:16.212000 [info ]: Finished loading project [  0.01s]
+18:16:16.212405 [info ]: Started debugging
+18:16:16.212637 [info ]: Debugging profile: dev
+18:16:16.212825 [info ]: Debugging dbt version: 2.0.0-preview.154
+18:16:16.213248 [info ]: Debugging platform: windows x86_64 (windows)
+18:16:16.213624 [info ]: Debugging adapter type: bigquery (remote)
+18:16:16.295305 [info ]: Debugging dependencies:
+  git: OK
+18:16:16.295724 [info ]: Debugging connection:
+  "database": "nth-avatar-431212-a6",
+  "schema": "lab_ops_raw",
+  "method": "service-account",
+  "location": "US",
+  "dataproc_batch": null
+18:16:19.944528 [debug]: Query executed on node unknown:
+select 1 as id
+18:16:19.944742 [info ]: Debugging connection test: OK
+18:16:19.945258 [info ]: Debugged All checks passed!
+18:16:19.945693 [info ]: Finished debugging [  3.73s]
+18:16:20.865519 [info ]: 
+==================== Execution Summary =====================
+Finished 'init' successfully for target 'dev' [1m 26s]

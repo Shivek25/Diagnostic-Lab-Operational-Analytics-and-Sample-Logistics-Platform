@@ -1,0 +1,80 @@
+version: 2
+
+sources:
+  - name: lab_ops_raw
+    description: "Raw diagnostic lab operations data sources from BigQuery"
+    database: nth-avatar-431212-a6
+    schema: lab_ops_raw
+    tables:
+      - name: courier_events
+      - name: dim_courier
+      - name: dim_lab
+      - name: dim_test_type
+      - name: dim_zone
+      - name: lab_processing
+      - name: sample_manifest
+
+models:
+  - name: stg_courier_events
+    description: "Staging model for courier events data" 
+    columns:
+      - name: event_id
+        description: "Unique identifier for the event"
+        tests:
+          - not_null
+          - unique
+  
+  - name: stg_dim_courier
+    description: "Staging model for dim courier data" 
+    columns:
+      - name: courier_id
+        description: "Unique identifier for the courier"
+        tests:
+          - not_null
+          - unique
+  
+  - name: stg_dim_lab
+    description: "Staging model for dim lab data" 
+    columns:
+      - name: lab_id
+        description: "Unique identifier for the lab"
+        tests:
+          - not_null
+          - unique
+  
+  - name: stg_dim_test_type
+    description: "Staging model for dim test type data" 
+    columns:
+      - name: test_type_id
+        description: "Unique identifier for the test type"
+        tests:
+          - not_null
+          - unique
+  
+  - name: stg_dim_zone
+    description: "Staging model for dim zone data" 
+    columns:
+      - name: zone_id
+        description: "Unique identifier for the zone"
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_lab_processing
+    description: "Staging model for lab processing data" 
+    columns:
+      - name: sample_id
+        description: "Unique identifier for the lab"
+        tests:
+          - not_null
+          - unique
+      
+  - name: stg_sample_manifest
+    description: "Staging model for sample manifest data" 
+    columns:
+      - name: sample_id
+        description: "Unique identifier for the sample"
+        tests:
+          - not_null
+          - unique
+    
