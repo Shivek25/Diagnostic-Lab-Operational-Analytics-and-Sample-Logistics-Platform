@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: agg_courier_sla
+    description: "Aggregated courier performance metrics by courier and date" 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - courier_id
+              - activity_date
+        
+  - name: agg_lab_daily_performance
+    description: "Aggregated lab performance metrics by lab and date" 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - lab_id
+              - activity_date
+  
+  - name: agg_test_tat
+    description: "Aggregated test performance metrics by test type and date" 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - test_type_id
+              - activity_date
+  
+  - name: fct_sample_journey
+    description: "Fact table for sample journey"
+    columns:
+      - name: sample_id
+        description: "Unique identifier for the sample"
+        tests:
+          - not_null
+          - unique
+      - name: sample_collected_at
+        description: "Timestamp when the sample was collected"
+        tests:
+          - not_null
+
+    tests:
+      - column_gte_column:
+          arguments:
+            left_column: pickup_time
+            right_column: sample_collected_at
+
+      - column_gte_column:
+          arguments:
+            left_column: delivery_time
+            right_column: pickup_time
+
+      - column_gte_column:
+          arguments:
+            left_column: lab_received_at
+            right_column: delivery_time
+
+      - column_gte_column:
+          arguments:
+            left_column: test_started_at
+            right_column: lab_received_at
+
+      - column_gte_column:
+          arguments:
+            left_column: test_completed_at
+            right_column: test_started_at
+
+      - column_gte_column:
+          arguments:
+            left_column: report_released_at
+            right_column: test_completed_at
