@@ -22,7 +22,7 @@ select
     round(avg(transit_minutes), 2) as avg_transit_minutes,
     round(avg(distance_km), 2) as avg_distance_km,
     countif(courier_delay_flag = 1) as delayed_deliveries,
-    round(safe_divide(countif(courier_delay_flag = 1), count(*)) * 100, 2) as delay_rate_pct,
-    round(safe_divide(countif(result_status = 'Completed'), count(*)) * 100, 2) as completion_rate_pct
+    round(safe_divide(countif(courier_delay_flag = 1), count(*)), 2) as delay_rate,
+    round(safe_divide(countif(result_status = 'Completed'), count(*)), 2) as completion_rate
 from base
 group by courier_id, activity_date
