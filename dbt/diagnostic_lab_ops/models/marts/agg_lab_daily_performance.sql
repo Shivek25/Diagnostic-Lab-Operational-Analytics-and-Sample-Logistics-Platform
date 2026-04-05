@@ -26,7 +26,7 @@ select
     round(avg(total_tat_minutes), 2) as avg_total_tat_minutes,
     round(avg(test_processing_minutes), 2) as avg_test_processing_minutes,
     round(avg(delivery_to_lab_minutes), 2) as avg_delivery_to_lab_minutes,
-    round(safe_divide(countif(sla_breach_flag = 1), count(*)) * 100, 2) as sla_breach_rate_pct,
-    round(safe_divide(countif(rejection_flag = 1), count(*)) * 100, 2) as rejection_rate_pct
+    round(safe_divide(countif(sla_breach_flag = 1), count(*)), 2) as sla_breach_rate,
+    round(safe_divide(countif(rejection_flag = 1), count(*)), 2) as rejection_rate
 from base
 group by lab_id, activity_date
