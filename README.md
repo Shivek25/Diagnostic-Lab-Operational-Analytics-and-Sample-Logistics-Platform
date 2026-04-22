@@ -1,6 +1,6 @@
 # 🏥 Diagnostic Lab Operational Analytics & Sample Logistics Platform
 
-An end-to-end data engineering and analytics solution designed for private diagnostic lab chains. This platform tracks the full lifecycle of medical samples—from collection and courier movement to lab processing and final report release. 
+An end-to-end data engineering and analytics solution designed for private diagnostic lab chains. This platform tracks the full lifecycle of medical samples; from collection and courier movement to lab processing and final report release. 
 
 By unifying fragmented operational data, this project provides a single consolidated view to monitor delays, identify bottlenecks, measure turnaround times, and improve overall operational reliability.
 
