@@ -158,12 +158,18 @@ This platform measures:
 
 ## 📈 Power BI Dashboard Highlights
 
+<p align="center"> <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/401b472b-42e7-49c9-bd6b-d4ae583a36f6" /> </p>
+
 The final Power BI report acts as a interactive operational monitoring dashboard, divided into key areas:
 1. **Executive Overview:** Top-level metrics on total samples, completion rates, SLA breach rates, and overall TAT trends.
 2. **Lab Performance:** Focuses on lab efficiency, highlighting overloaded labs, rejection rates, and average processing times.
 3. **Courier Performance:** Tracks vendor efficiency, average transit times, and delivery completion rates.
 4. **Test Analytics:** Identifies operationally heavy tests, critical test volume, and expected vs. actual TAT.
 5. **Sample Journey Detail:** A drill-through view detailing the exact lifecycle and timestamp trace of individual samples.
+
+<p align="center"> <img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/e01102e7-7131-459f-a42e-e56172ce16ca" /> </p>
+
+
 
 ---
 
