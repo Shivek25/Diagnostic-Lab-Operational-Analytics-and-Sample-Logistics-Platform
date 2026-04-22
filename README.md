@@ -189,14 +189,6 @@ Connect Power BI to the BigQuery mart layer and build the dashboards.
 
 ---
 
-## 🔒 Data Privacy
-
-All data in this project is synthetic and de-identified.  
-No real patient names, phone numbers, or personal medical data are used.  
-This makes the project safe for portfolio, demo, and client discussion purposes.
-
----
-
 ## 💼 Business Value
 
 This platform helps diagnostic labs:
@@ -221,6 +213,14 @@ Possible next steps include:
 - hospital or collection-center level drilldowns
 - forecasting sample volume by city or zone
 - Power BI Service deployment and scheduled refresh
+
+---
+
+## 🔒 Data Privacy
+
+All data in this project is synthetic and de-identified.  
+No real patient names, phone numbers, or personal medical data are used.  
+This makes the project safe for portfolio, demo, and client discussion purposes.
 
 ---
 
