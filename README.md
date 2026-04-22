@@ -32,56 +32,133 @@ Private diagnostic labs generally face several recurring operational challenges:
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## Tech Stack
 
-The solution is built as a modern data warehouse pipeline consisting of four major layers:
-
-1. **Synthetic Data Generation (Python, Pandas, Faker):** 
-   Since real patient-level data is sensitive, realistic de-identified operational data was generated (including realistic delays, priority-based samples, and SLA breaches).
-2. **Raw Data Layer (Google BigQuery):** 
-   Generated data is loaded into BigQuery staging tables representing the raw operational systems (manifests, courier events, lab intake).
-3. **Transformation Layer (dbt - data build tool):** 
-   Data is cleaned, standardized, and modeled using dbt. This includes staging models, an intermediate sample journey model, and final aggregated mart tables.
-4. **Analytics & Reporting Layer (Power BI):** 
-   A comprehensive dashboard providing interactive drill-down capabilities for executive overviews, lab performance, and courier tracking.
+- **Python** for data generation and preprocessing
+- **Pandas** for table creation and validation
+- **Faker** for synthetic data generation
+- **Google BigQuery** for raw and curated warehouse storage
+- **dbt** for SQL-based transformation and modeling
+- **Power BI Desktop** for reporting and dashboarding
+- **GitHub** for version control
 
 ---
 
 ## 📊 Data Model Design
 
-The project employs a robust **Star Schema** designed for analytical workloads:
+The project uses a **star-schema** style warehouse design.
 
-### **Dimension Tables** (Business Context)
-- `dim_lab`: Lab master data (capacity, type, 24x7 availability, zone).
-- `dim_courier`: Courier vendor details (service area, average delivery time, SLA hours).
-- `dim_test_type`: Test catalog information (category, expected TAT, critical status).
-- `dim_zone`: Regional information (traffic levels, priority).
+### Dimension Tables
 
-### **Fact & Operational Tables** (Business Process)
-- `sample_manifest`: Order and collection records.
-- `courier_events`: Courier pickup and delivery behavior.
-- `lab_processing`: Lab intake, testing, and report release timestamps.
+#### `dim_lab`
+Stores lab master information such as:
+- lab name
+- lab type
+- city
+- zone
+- capacity
+- operational status
+- 24x7 availability
 
-### **Analytical Data Marts** (Reporting Tables)
-- `fct_sample_journey`: The main fact table stitching the entire sample lifecycle, including flags and durations.
-- `agg_lab_daily_performance`: Daily lab productivity and quality summaries.
-- `agg_courier_sla`: Courier operational performance tracking.
-- `agg_test_tat`: Test-level turnaround and rejection metrics.
+#### `dim_courier`
+Stores courier vendor details such as:
+- courier name
+- courier type
+- service area
+- average delivery time
+- SLA hours
+- cost per km
+
+#### `dim_test_type`
+Stores test catalog details such as:
+- test name
+- test category
+- sample type
+- expected turnaround time
+- cost
+- critical test flag
+
+#### `dim_zone`
+Stores geographic region information such as:
+- zone name
+- city
+- region type
+- traffic level
+- priority level
+
+### Source Tables
+
+#### `sample_manifest`
+One row per sample. Contains collection and order details.
+
+#### `courier_events`
+One row per courier event per sample. Contains pickup and delivery movement.
+
+#### `lab_processing`
+One row per sample processing journey. Contains lab receipt, testing, and report timestamps.
+
+### Analytics Tables
+
+#### `int_sample_journey`
+Intermediate model that combines sample, courier, and lab processing data into one operational journey view.
+
+#### `fct_sample_journey`
+Main fact table containing sample-level journey metrics, flags, and durations.
+
+#### `agg_lab_daily_performance`
+Daily lab performance summary.
+
+#### `agg_courier_sla`
+Daily courier performance summary.
+
+#### `agg_test_tat`
+Daily test-level turnaround and rejection summary.
 
 ---
 
-## 📈 Key Business Logic & Metrics
+## 📂 Project Structure
 
-- **TAT (Turnaround Time):** The total time taken from sample collection to the final report release.
-- **SLA (Service Level Agreement) Monitoring:** A sample is flagged as "breached" if the actual TAT exceeds the expected/promised TAT.
-- **Delay Attribution:** The pipeline separately tracks *Pickup Delays* and *Courier Delays* so the business knows exactly whether transport or lab processing is at fault.
-- **Rejection Tracking:** Rejected samples are flagged, allowing labs to review rejection patterns by test type, courier, or zone.
+```text
+E2E_DataEngineeringProject/
+│
+├── dbt/                                  # dbt project directory
+│   ├── diagnostic_lab_ops/               # dbt models and configuration
+│   │   ├── models/
+│   │   │   ├── staging/                  # Staging models wrapping raw BigQuery tables
+│   │   │   ├── intermediate/             # Intermediate transformation logic
+│   │   │   └── marts/                    # Final aggregated data marts
+│   │   ├── dbt_project.yml               # dbt project configuration
+│   │   └── profiles.yml                  # dbt profile connection to BigQuery
+│
+├── generate_lab_data.py                  # Python script for synthetic data generation
+├── Lab Ops Analytics Dashboard.pbix      # Power BI Dashboard file
+├── Lab Ops Analytics Dashboard.pdf       # Exported PDF view of the dashboard
+├── project_summary.txt                   # High-level project summary
+└── README.md                             # Project documentation
+```
+
+---
+
+## 🔑 Key Metrics
+
+This platform measures:
+- Total samples processed
+- Completed samples
+- Rejected samples
+- SLA breach rate
+- Average total turnaround time
+- Average delivery to lab time
+- Courier transit time
+- Lab processing time
+- Rejection rate by lab and test type
+- Delay rate by courier
+- TAT by test category
 
 ---
 
 ## 📈 Power BI Dashboard Highlights
 
-The final Power BI report acts as a real-time operations control system, divided into key areas:
+The final Power BI report acts as a interactive operational monitoring dashboard, divided into key areas:
 1. **Executive Overview:** Top-level metrics on total samples, completion rates, SLA breach rates, and overall TAT trends.
 2. **Lab Performance:** Focuses on lab efficiency, highlighting overloaded labs, rejection rates, and average processing times.
 3. **Courier Performance:** Tracks vendor efficiency, average transit times, and delivery completion rates.
@@ -90,14 +167,56 @@ The final Power BI report acts as a real-time operations control system, divided
 
 ---
 
-## 💼 Value Proposition for Clients
+## ⚙️ How to Run the Project
 
-This platform serves as a strong foundation for any diagnostic business looking to modernize its operations:
-- **Operational Visibility:** Get a single pane of glass over sample logistics.
-- **Root Cause Analysis:** Instantly identify whether a bottleneck is due to a specific courier route, a slow lab, or a specific test category.
-- **Vendor & Lab Accountability:** Accurately track courier SLA adherence and individual lab productivity.
-- **Process Improvement:** Spot rejection patterns caused by poor sample handling or route delays and take corrective action.
+**Step 1: Generate synthetic data**  
+Run the Python script to create CSV files for all source and dimension tables.
+
+**Step 2: Load data into BigQuery**  
+Import the CSV files into BigQuery raw tables.
+
+**Step 3: Run dbt models**  
+Use dbt to build staging models, intermediate logic, fact tables, and aggregate marts.
+
+**Step 4: Open Power BI Desktop**  
+Connect Power BI to the BigQuery mart layer and build the dashboards.
 
 ---
 
-*This project was built to demonstrate an end-to-end data engineering lifecycle, combining data modeling, warehouse design, pipeline orchestration, and business interpretation into a production-grade analytics platform.*
+## 🔒 Data Privacy
+
+All data in this project is synthetic and de-identified.  
+No real patient names, phone numbers, or personal medical data are used.  
+This makes the project safe for portfolio, demo, and client discussion purposes.
+
+---
+
+## 💼 Business Value
+
+This platform helps diagnostic labs:
+- improve sample visibility
+- identify delay bottlenecks
+- track courier SLA performance
+- analyze lab productivity
+- reduce rejections
+- monitor turnaround time
+- make data-driven operational decisions
+
+It provides a single source of truth for sample logistics and lab operations.
+
+---
+
+## 🔮 Future Enhancements
+
+Possible next steps include:
+- real-time ingestion with Cloud Functions
+- automated alerts for SLA breaches
+- route optimization for couriers
+- hospital or collection-center level drilldowns
+- forecasting sample volume by city or zone
+- Power BI Service deployment and scheduled refresh
+
+---
+
+**Author**  
+Shivek
