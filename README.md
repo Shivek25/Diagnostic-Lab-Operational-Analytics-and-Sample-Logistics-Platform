@@ -34,13 +34,17 @@ Private diagnostic labs generally face several recurring operational challenges:
 
 ## Tech Stack
 
-- **Python** for data generation and preprocessing
-- **Pandas** for table creation and validation
-- **Faker** for synthetic data generation
-- **Google BigQuery** for raw and curated warehouse storage
-- **dbt** for SQL-based transformation and modeling
-- **Power BI Desktop** for reporting and dashboarding
-- **GitHub** for version control
+### 📊 Local Dashboard (New)
+- **Streamlit** — interactive dashboard UI
+- **Plotly** — charts and visualisations
+- **Pandas** — data manipulation
+
+### 🔧 Data Pipeline (Existing)
+- **Python / Faker** — synthetic data generation
+- **Google BigQuery** — cloud data warehouse
+- **dbt** — SQL transformation and modeling
+- **Power BI Desktop** — original reporting layer
+- **GitHub** — version control
 
 ---
 
@@ -121,20 +125,28 @@ Daily test-level turnaround and rejection summary.
 ```text
 E2E_DataEngineeringProject/
 │
-├── dbt/                                  # dbt project directory
-│   ├── diagnostic_lab_ops/               # dbt models and configuration
-│   │   ├── models/
-│   │   │   ├── staging/                  # Staging models wrapping raw BigQuery tables
-│   │   │   ├── intermediate/             # Intermediate transformation logic
-│   │   │   └── marts/                    # Final aggregated data marts
-│   │   ├── dbt_project.yml               # dbt project configuration
-│   │   └── profiles.yml                  # dbt profile connection to BigQuery
+├── app.py                                # ✅ Streamlit dashboard entry point (NEW)
+├── utils/                                # ✅ Dashboard helper modules (NEW)
+│   ├── data_loader.py                    #    Loads & merges all CSV files
+│   └── metrics.py                        #    Core KPI calculation functions
 │
-├── generate_lab_data.py                  # Python script for synthetic data generation
-├── Lab Ops Analytics Dashboard.pbix      # Power BI Dashboard file
-├── Lab Ops Analytics Dashboard.pdf       # Exported PDF view of the dashboard
-├── project_summary.txt                   # High-level project summary
-└── README.md                             # Project documentation
+├── Diagnostic Lab Operational Analytics Sample Logistics Project/
+│   └── data/
+│       ├── raw/                          # sample_manifest, courier_events, lab_processing
+│       └── reference/                    # dim_lab, dim_courier, dim_test_type, dim_zone
+│
+├── dbt/                                  # dbt project (pipeline, untouched)
+│   └── diagnostic_lab_ops/
+│       └── models/
+│           ├── staging/
+│           ├── intermediate/
+│           └── marts/
+│
+├── generate_lab_data.py                  # Synthetic data generator
+├── requirements.txt                      # ✅ Updated Python dependencies
+├── CHECKLIST.md                          # ✅ Quick-start developer checklist (NEW)
+├── Lab Ops Analytics Dashboard.pbix      # Power BI Dashboard
+└── README.md                             # This file
 ```
 
 ---
@@ -175,17 +187,39 @@ The final Power BI report acts as a interactive operational monitoring dashboard
 
 ## ⚙️ How to Run the Project
 
-**Step 1: Generate synthetic data**  
-Run the Python script to create CSV files for all source and dimension tables.
+### 🚀 Quick Start — Local Streamlit Dashboard (No Cloud Required)
 
-**Step 2: Load data into BigQuery**  
-Import the CSV files into BigQuery raw tables.
+**Step 1 — Install dependencies**
+```bash
+pip install -r requirements.txt
+```
 
-**Step 3: Run dbt models**  
-Use dbt to build staging models, intermediate logic, fact tables, and aggregate marts.
+**Step 2 — Generate synthetic data** *(skip if CSVs already exist)*
+```bash
+python generate_lab_data.py
+```
 
-**Step 4: Open Power BI Desktop**  
-Connect Power BI to the BigQuery mart layer and build the dashboards.
+**Step 3 — Launch the dashboard**
+```bash
+streamlit run app.py
+```
+Browser opens at `http://localhost:8501` with 5 dashboard sections:
+- 📊 **Executive Overview** — KPI cards, status donut chart, daily trend
+- 🏥 **Lab Performance** — TAT, rejection rate, SLA breach by lab
+- 🚚 **Courier Performance** — transit time, delay rate, SLA compliance
+- 🔬 **Test Type Analytics** — volume, TAT, rejection rate per test
+- 🗺 **Sample Journey** — drillable table of each sample's full lifecycle
+
+See [CHECKLIST.md](./CHECKLIST.md) for the full verification checklist.
+
+---
+
+### ☁️ Full Cloud Pipeline (Advanced — BigQuery + dbt + Power BI)
+
+**Step 1:** Generate CSV files with `python generate_lab_data.py`  
+**Step 2:** Load CSVs into BigQuery raw tables  
+**Step 3:** Run dbt to build staging → intermediate → mart models  
+**Step 4:** Open Power BI and connect to the BigQuery mart layer
 
 ---
 
