@@ -72,6 +72,33 @@ def avg_lab_processing_hours(df: pd.DataFrame) -> float:
 
 
 # ---------------------------------------------------------------------------
+# Filtered subsets for Alerts
+# ---------------------------------------------------------------------------
+
+def get_delayed_samples_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Returns samples that are delayed based on expected TAT or already marked as delayed."""
+    # A sample is delayed if its status is Delayed OR total_tat_hours > expected_tat_hours
+    # We'll use expected_tat_hours for a stricter check
+    if "expected_tat_hours" in df.columns:
+        return df[(df["sample_status"] == "Delayed") | (df["total_tat_hours"] > df["expected_tat_hours"])]
+    return df[df["sample_status"] == "Delayed"]
+
+
+def get_sla_breaches_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Returns samples that breached their promised SLA."""
+    if "sla_breach" in df.columns:
+        return df[df["sla_breach"] == True]
+    return df.iloc[0:0] # empty fallback
+
+
+def get_critical_delays_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Returns samples delayed beyond 2x their expected TAT."""
+    if "expected_tat_hours" in df.columns and "total_tat_hours" in df.columns:
+        return df[df["total_tat_hours"] > (2 * df["expected_tat_hours"])]
+    return df.iloc[0:0]
+
+
+# ---------------------------------------------------------------------------
 # Lab-level aggregations
 # ---------------------------------------------------------------------------
 
@@ -105,12 +132,12 @@ def lab_summary(df: pd.DataFrame) -> pd.DataFrame:
 
     rejections = (
         df.groupby("lab_name")
-        .apply(_rej_rate)
+        .apply(_rej_rate, include_groups=False)
         .reset_index(name="rejection_rate_pct")
     )
     sla = (
         df.groupby("lab_name")
-        .apply(_sla_rate)
+        .apply(_sla_rate, include_groups=False)
         .reset_index(name="sla_breach_rate_pct")
     )
 
@@ -150,7 +177,7 @@ def courier_summary(df: pd.DataFrame) -> pd.DataFrame:
 
     delays = (
         df.groupby("courier_name")
-        .apply(_delay_rate)
+        .apply(_delay_rate, include_groups=False)
         .reset_index(name="delay_rate_pct")
     )
 
@@ -189,7 +216,7 @@ def test_type_summary(df: pd.DataFrame) -> pd.DataFrame:
 
     rejections = (
         df.groupby("test_name")
-        .apply(_rej_rate)
+        .apply(_rej_rate, include_groups=False)
         .reset_index(name="rejection_rate_pct")
     )
 
