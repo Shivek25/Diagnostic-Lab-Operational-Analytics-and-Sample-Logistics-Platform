@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 
 from utils.data_loader import get_journey_df
 from utils import metrics as m
+from utils.insights import generate_insights
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Page config
@@ -142,6 +143,13 @@ with st.sidebar:
     sel_statuses = st.multiselect("📊 Sample Status", statuses, default=statuses)
 
     st.divider()
+
+    # Export functionality
+    st.markdown("### 📥 Export Data")
+    # We will generate the CSVs dynamically below after df is filtered.
+    # Note: Streamlit download buttons require the data. We'll add them after filtering.
+
+    st.divider()
     st.caption("Data: synthetic · No cloud required")
 
 # ── Apply filters ──────────────────────────────────────────────────────────
@@ -168,10 +176,10 @@ st.markdown(
     <div style="background:linear-gradient(90deg,#0f172a,#1e3a5f);
                 border-radius:14px;padding:24px 32px;margin-bottom:24px;">
         <h1 style="color:#38bdf8;margin:0;font-size:1.8rem;font-weight:700;letter-spacing:-0.02em;">
-            🏥 Diagnostic Lab Operational Analytics
+            🏥 Lab Ops Analytics Dashboard
         </h1>
         <p style="color:#94a3b8;margin:6px 0 0 0;font-size:0.92rem;">
-            Sample Logistics · Courier Performance · Lab Efficiency · TAT Analysis
+            Operational Intelligence for Diagnostic Labs
         </p>
     </div>
     """,
@@ -214,13 +222,58 @@ def kpi(label: str, value, sub: str = "") -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 # Tabs
 # ═══════════════════════════════════════════════════════════════════════════
-tab_overview, tab_lab, tab_courier, tab_test, tab_journey = st.tabs([
+tab_alerts, tab_overview, tab_lab, tab_courier, tab_test, tab_journey = st.tabs([
+    "🚨 Alerts & Insights",
     "📊 Executive Overview",
     "🏥 Lab Performance",
     "🚚 Courier Performance",
     "🔬 Test Type Analytics",
     "🗺 Sample Journey",
 ])
+
+# ── Sidebar Export Data (Dynamic after df is created) ──
+with st.sidebar:
+    if not df.empty:
+        csv_full = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download Filtered Data (CSV)",
+            data=csv_full,
+            file_name="lab_ops_filtered_data.csv",
+            mime="text/csv",
+        )
+        
+        # Summary report (lab summary)
+        lab_summary_csv = m.lab_summary(df).to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download Summary Report (CSV)",
+            data=lab_summary_csv,
+            file_name="lab_ops_summary_report.csv",
+            mime="text/csv",
+        )
+
+# ┌───────────────────────────────────────────────────────────────────────┐
+# │ 0. ALERTS & INSIGHTS                                                  │
+# └───────────────────────────────────────────────────────────────────────┘
+with tab_alerts:
+    if df.empty:
+        st.warning("No data matches the current filters.")
+    else:
+        st.markdown('<div class="section-title">Critical Alerts</div>', unsafe_allow_html=True)
+        
+        c1, c2, c3 = st.columns(3)
+        num_delayed = len(m.get_delayed_samples_df(df))
+        num_sla_breach = len(m.get_sla_breaches_df(df))
+        num_critical = len(m.get_critical_delays_df(df))
+        
+        with c1: st.markdown(kpi("Delayed Samples", f"{num_delayed:,}", "Past expected TAT"), unsafe_allow_html=True)
+        with c2: st.markdown(kpi("SLA Breaches", f"{num_sla_breach:,}", "Past promised TAT"), unsafe_allow_html=True)
+        with c3: st.markdown(kpi("Critical Delays", f"{num_critical:,}", "> 2x expected TAT"), unsafe_allow_html=True)
+
+        st.markdown('<div class="section-title">Automated Insights</div>', unsafe_allow_html=True)
+        insights = generate_insights(df)
+        for insight in insights:
+            st.info(insight)
+
 
 
 # ┌───────────────────────────────────────────────────────────────────────┐
@@ -343,29 +396,37 @@ with tab_lab:
 
         with col_rej:
             st.markdown('<div class="section-title">Rejection Rate by Lab (%)</div>', unsafe_allow_html=True)
+            lab_df["rej_status"] = lab_df["rejection_rate_pct"].apply(
+                lambda x: "Poor (>10%)" if x > 10 else ("Warning (>5%)" if x > 5 else "Good (≤5%)")
+            )
             fig_rej = px.bar(
                 lab_df,
                 x="rejection_rate_pct", y="lab_name", orientation="h",
-                color="rejection_rate_pct", color_continuous_scale="Reds",
+                color="rej_status", 
+                color_discrete_map={"Poor (>10%)": "#ef4444", "Warning (>5%)": "#f59e0b", "Good (≤5%)": "#10b981"},
                 labels={"rejection_rate_pct": "Rejection Rate (%)", "lab_name": "Lab"},
                 text="rejection_rate_pct",
             )
             fig_rej.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
             fig_rej = apply_chart_style(fig_rej)
-            fig_rej.update_coloraxes(showscale=False)
+            fig_rej.update_layout(showlegend=False)
             st.plotly_chart(fig_rej, use_container_width=True)
 
         st.markdown('<div class="section-title">SLA Breach Rate by Lab (%)</div>', unsafe_allow_html=True)
+        lab_df["sla_status"] = lab_df["sla_breach_rate_pct"].apply(
+            lambda x: "Poor (>10%)" if x > 10 else ("Warning (>5%)" if x > 5 else "Good (≤5%)")
+        )
         fig_sla = px.bar(
             lab_df,
             x="lab_name", y="sla_breach_rate_pct",
-            color="sla_breach_rate_pct", color_continuous_scale="Oranges",
+            color="sla_status", 
+            color_discrete_map={"Poor (>10%)": "#ef4444", "Warning (>5%)": "#f59e0b", "Good (≤5%)": "#10b981"},
             labels={"lab_name": "Lab", "sla_breach_rate_pct": "SLA Breach Rate (%)"},
             text="sla_breach_rate_pct",
         )
         fig_sla.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
         fig_sla = apply_chart_style(fig_sla)
-        fig_sla.update_coloraxes(showscale=False)
+        fig_sla.update_layout(showlegend=False)
         st.plotly_chart(fig_sla, use_container_width=True)
 
         # Overloaded labs table
@@ -387,7 +448,7 @@ with tab_lab:
                 "capacity_per_day": "Daily Capacity", "avg_daily_samples": "Avg Daily Samples",
                 "load_pct": "Load %", "status": "Status",
             }),
-            use_container_width=True, hide_index=True,
+            width="stretch", hide_index=True,
         )
 
 
@@ -430,16 +491,20 @@ with tab_courier:
 
         with col_delay:
             st.markdown('<div class="section-title">Delay Rate by Courier (%)</div>', unsafe_allow_html=True)
+            cou_df["delay_status"] = cou_df["delay_rate_pct"].apply(
+                lambda x: "Poor (>10%)" if x > 10 else ("Warning (>5%)" if x > 5 else "Good (≤5%)")
+            )
             fig_delay = px.bar(
                 cou_df,
                 x="delay_rate_pct", y="courier_name", orientation="h",
-                color="delay_rate_pct", color_continuous_scale="Reds",
+                color="delay_status",
+                color_discrete_map={"Poor (>10%)": "#ef4444", "Warning (>5%)": "#f59e0b", "Good (≤5%)": "#10b981"},
                 labels={"delay_rate_pct": "Delay Rate (%)", "courier_name": "Courier"},
                 text="delay_rate_pct",
             )
             fig_delay.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
             fig_delay = apply_chart_style(fig_delay)
-            fig_delay.update_coloraxes(showscale=False)
+            fig_delay.update_layout(showlegend=False)
             st.plotly_chart(fig_delay, use_container_width=True)
 
         st.markdown('<div class="section-title">SLA Compliance by Courier (%)</div>', unsafe_allow_html=True)
@@ -463,7 +528,7 @@ with tab_courier:
                 "avg_transit_hours": "Avg Transit (hrs)",
                 "delay_rate_pct": "Delay Rate (%)", "on_time_rate_pct": "On-Time Rate (%)",
             }),
-            use_container_width=True, hide_index=True,
+            width="stretch", hide_index=True,
         )
 
 
@@ -507,16 +572,20 @@ with tab_test:
 
         with col_rej2:
             st.markdown('<div class="section-title">Rejection Rate by Test Type (%)</div>', unsafe_allow_html=True)
+            test_df["rej_status"] = test_df["rejection_rate_pct"].apply(
+                lambda x: "Poor (>10%)" if x > 10 else ("Warning (>5%)" if x > 5 else "Good (≤5%)")
+            )
             fig_trej = px.bar(
                 test_df.sort_values("rejection_rate_pct", ascending=False),
                 x="rejection_rate_pct", y="test_name", orientation="h",
-                color="rejection_rate_pct", color_continuous_scale="Reds",
+                color="rej_status",
+                color_discrete_map={"Poor (>10%)": "#ef4444", "Warning (>5%)": "#f59e0b", "Good (≤5%)": "#10b981"},
                 labels={"rejection_rate_pct": "Rejection Rate (%)", "test_name": "Test"},
                 text="rejection_rate_pct",
             )
             fig_trej.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
             fig_trej = apply_chart_style(fig_trej, height=380)
-            fig_trej.update_coloraxes(showscale=False)
+            fig_trej.update_layout(showlegend=False)
             st.plotly_chart(fig_trej, use_container_width=True)
 
         # Critical vs Normal summary
@@ -584,7 +653,18 @@ with tab_journey:
     }
     jdf = jdf.rename(columns={k: v for k, v in rename_map.items() if k in jdf.columns})
 
-    st.dataframe(jdf, use_container_width=True, hide_index=True, height=480)
+    def _style_status(val):
+        if val == "Rejected":
+            return "color: #ef4444; font-weight: 600"
+        elif val == "Delayed":
+            return "color: #f59e0b; font-weight: 500"
+        elif val == "Completed":
+            return "color: #10b981"
+        return ""
+        
+    styled_jdf = jdf.style.map(_style_status, subset=["Status"])
+
+    st.dataframe(styled_jdf, width="stretch", hide_index=True, height=480)
 
     st.caption(
         f"Showing **{len(jdf):,}** records. "
